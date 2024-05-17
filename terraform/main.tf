@@ -7,10 +7,9 @@ provider "aws" {
 resource "aws_ecs_cluster" "my_cluster" {
   name = "my-cluster"  
 }
-
 # Define IAM role for ECS task execution
 resource "aws_iam_role" "my_task_execution_role" {
-  name               = "my-task-execution-role-unique"
+  name               = "my-task-execution-role"
   assume_role_policy = jsonencode({
     Version = "2012-10-17",
     Statement = [{
@@ -23,68 +22,17 @@ resource "aws_iam_role" "my_task_execution_role" {
   })
 }
 
-# Attach IAM policy for ECR permissions to the task execution role
-resource "aws_iam_policy_attachment" "ecr_policy_attachment" {
-  name       = "ecr-policy-attachment-unique"
+# Attach IAM policy to the task execution role
+resource "aws_iam_policy_attachment" "ecs_task_execution_policy_attachment" {
+  name       = "ecs-task-execution-policy-attachment"
   roles      = [aws_iam_role.my_task_execution_role.name]
-  policy_arn = aws_iam_policy.ecr_policy.arn
+  policy_arn = "arn:aws:iam::aws:policy/service-role/AmazonECSTaskExecutionRolePolicy"
 }
 
-# Attach IAM policy for ECR Image Builder permissions to the task execution role
-resource "aws_iam_policy_attachment" "ecr_image_builder_policy_attachment" {
-  name       = "ecr-image-builder-policy-attachment-unique"
-  roles      = [aws_iam_role.my_task_execution_role.name]
-  policy_arn = aws_iam_policy.ecr_image_builder_policy.arn
-}
-
-# Define IAM policy for ECR permissions
-resource "aws_iam_policy" "ecr_policy" {
-  name        = "ECRPermissionsForTaskUniqueName"
-  description = "Policy for ECR permissions"
-  policy      = jsonencode({
-    Version   = "2012-10-17",
-    Statement = [{
-      Effect   = "Allow",
-      Action   = [
-        "ecr:GetDownloadUrlForLayer",
-        "ecr:BatchGetImage",
-        "ecr:DescribeImages",
-        "ecr:GetAuthorizationToken",
-        "ecr:BatchCheckLayerAvailability"
-      ],
-      Resource = "*"
-    }]
-  })
-}
-
-# Define IAM policy for ECR Image Builder permissions
-resource "aws_iam_policy" "ecr_image_builder_policy" {
-  name        = "ECRImageBuilderPermissionsForTaskUniqueName"
-  description = "Policy for ECR Image Builder permissions"
-  policy      = jsonencode({
-    Version   = "2012-10-17",
-    Statement = [{
-      Effect   = "Allow",
-      Action   = [
-        "imagebuilder:GetComponent",
-        "imagebuilder:GetContainerRecipe",
-        "ecr:GetAuthorizationToken",
-        "ecr:BatchGetImage",
-        "ecr:InitiateLayerUpload",
-        "ecr:UploadLayerPart",
-        "ecr:CompleteLayerUpload",
-        "ecr:BatchCheckLayerAvailability",
-        "ecr:GetDownloadUrlForLayer",
-        "ecr:PutImage"
-      ],
-      Resource = "*"
-    }]
-  })
-}
 
 # Define ECS task definition
 resource "aws_ecs_task_definition" "my_task" {
-  family                   = "my-task-unique" 
+  family                   = "my-task" 
   container_definitions    = jsonencode([
     {
       name            = "my-nodejs-app"
@@ -136,7 +84,7 @@ resource "aws_subnet" "subnet2" {
 }
 
 resource "aws_security_group" "nodejs_app_sg" {
-  name        = "nodejs-app-sg-unique"
+  name        = "nodejs-app-sg"
   description = "Security group for Node.js app running on port 3000"
 
   vpc_id = aws_vpc.my_vpc.id 
@@ -158,7 +106,7 @@ resource "aws_security_group" "nodejs_app_sg" {
 
 # Define ECS service
 resource "aws_ecs_service" "my_service" {
-  name            = "my-service-unique"  
+  name            = "my-service"  
   cluster         = aws_ecs_cluster.my_cluster.id
   task_definition = aws_ecs_task_definition.my_task.arn
   desired_count   = 1  
