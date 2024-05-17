@@ -20,7 +20,7 @@ jobs:
 
       - name: Login to Docker registry
         run: |
-          echo "aws ecr get-login-password --region ${{ secrets.AWS_REGION }}  | docker login --username AWS --password-stdin "${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.${{ secrets.AWS_REGION }}.amazonaws.com"
+          echo "$(aws ecr get-login-password --region ${{ secrets.AWS_REGION }}) | docker login --username AWS --password-stdin ${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.${{ secrets.AWS_REGION }}.amazonaws.com"
 
       - name: Build and push Docker image
         uses: docker/build-push-action@v2
