@@ -7,6 +7,28 @@ provider "aws" {
 resource "aws_ecs_cluster" "my_cluster" {
   name = "my-cluster"  
 }
+# Define IAM role for ECS task execution
+resource "aws_iam_role" "my_task_execution_role" {
+  name               = "my-task-execution-role"
+  assume_role_policy = jsonencode({
+    Version = "2012-10-17",
+    Statement = [{
+      Effect    = "Allow",
+      Principal = {
+        Service = "ecs-tasks.amazonaws.com"
+      },
+      Action    = "sts:AssumeRole"
+    }]
+  })
+}
+
+# Attach IAM policy to the task execution role
+resource "aws_iam_policy_attachment" "ecs_task_execution_policy_attachment" {
+  name       = "ecs-task-execution-policy-attachment"
+  roles      = [aws_iam_role.my_task_execution_role.name]
+  policy_arn = "arn:aws:iam::aws:policy/service-role/AmazonECSTaskExecutionRolePolicy"
+}
+
 
 # Define ECS task definition
 resource "aws_ecs_task_definition" "my_task" {
@@ -34,7 +56,7 @@ resource "aws_ecs_task_definition" "my_task" {
     }
   ])
   # Specify task execution role ARN if required
-  # execution_role_arn = aws_iam_role.my_task_execution_role.arn
+  execution_role_arn = aws_iam_role.my_task_execution_role.arn
   
   # Specify network mode as "awsvpc" for Fargate launch type
   network_mode = "awsvpc"
