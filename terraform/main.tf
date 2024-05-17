@@ -8,15 +8,31 @@ resource "aws_ecs_cluster" "my_cluster" {
   name = "my-cluster"  
 }
 
-# Read the container definitions JSON file
-locals {
-  container_definitions_json = jsondecode(file("${path.module}/container_definitions.json"))
-}
-
 # Define ECS task definition
 resource "aws_ecs_task_definition" "my_task" {
   family                   = "my-task" 
-  container_definitions    = local.container_definitions_json.containerDefinitions
+  container_definitions    = jsonencode([
+    {
+      name            = "my-nodejs-app"
+      image           = "211125771099.dkr.ecr.ap-south-1.amazonaws.com/nodejs_app:latest"
+      memory          = 512
+      cpu             = 256
+      essential       = true
+      portMappings    = [
+        {
+          containerPort = 3000
+          hostPort      = 3000
+          protocol      = "tcp"
+        }
+      ]
+      environment     = [
+        {
+          name  = "NODE_ENV"
+          value = "production"
+        }
+      ]
+    }
+  ])
 }
 
 resource "aws_vpc" "my_vpc" {
