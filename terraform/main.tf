@@ -12,7 +12,7 @@ resource "aws_ecs_cluster" "my_cluster" {
 resource "aws_iam_role" "my_task_execution_role" {
   name               = "my-task-execution-role"
   assume_role_policy = jsonencode({
-    Version = "2012-10-17",
+    Version   = "2012-10-17",
     Statement = [{
       Effect    = "Allow",
       Principal = {
@@ -23,11 +23,18 @@ resource "aws_iam_role" "my_task_execution_role" {
   })
 }
 
-# Attach IAM policy to the task execution role
-resource "aws_iam_policy_attachment" "ecs_task_execution_policy_attachment" {
-  name       = "ecs-task-execution-policy-attachment"
+# Attach IAM policy for ECR permissions to the task execution role
+resource "aws_iam_policy_attachment" "ecr_policy_attachment" {
+  name       = "ecr-policy-attachment"
   roles      = [aws_iam_role.my_task_execution_role.name]
-  policy_arn = "arn:aws:iam::aws:policy/service-role/AmazonECSTaskExecutionRolePolicy"
+  policy_arn = aws_iam_policy.ecr_policy.arn
+}
+
+# Attach IAM policy for ECR Image Builder permissions to the task execution role
+resource "aws_iam_policy_attachment" "ecr_image_builder_policy_attachment" {
+  name       = "ecr-image-builder-policy-attachment"
+  roles      = [aws_iam_role.my_task_execution_role.name]
+  policy_arn = aws_iam_policy.ecr_image_builder_policy.arn
 }
 
 # Define IAM policy for ECR permissions
