@@ -8,10 +8,15 @@ resource "aws_ecs_cluster" "my_cluster" {
   name = "my-cluster"  
 }
 
+# Read the container definitions JSON file
+locals {
+  container_definitions_json = jsondecode(file("${path.module}/container_definitions.json"))
+}
+
 # Define ECS task definition
 resource "aws_ecs_task_definition" "my_task" {
   family                   = "my-task" 
-  container_definitions    = jsonencode(jsondecode(file("${path.module}/container_definitions.json")))
+  container_definitions    = local.container_definitions_json.containerDefinitions
 }
 
 resource "aws_vpc" "my_vpc" {
