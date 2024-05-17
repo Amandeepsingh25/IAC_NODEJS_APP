@@ -10,8 +10,8 @@ resource "aws_ecs_cluster" "my_cluster" {
 
 # Define ECS task definition
 resource "aws_ecs_task_definition" "my_task" {
-  family                   = "my-task"  # Choose a name for your task
-  container_definitions    = file("${path.module}/terraform/container_definitions.json")
+  family                   = "my-task" 
+  container_definitions    = file("${path.module}/container_definitions.json")
 }
 
 resource "aws_vpc" "my_vpc" {
