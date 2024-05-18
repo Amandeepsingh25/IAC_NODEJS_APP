@@ -53,3 +53,25 @@ jobs:
         run: |
             cd ./terraform
             terraform apply -auto-approve 
+    
+  destroy-infrastructure:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Set up Terraform
+        uses: hashicorp/setup-terraform@v1
+        with:
+          terraform_version: '1.0.0'
+
+      - name: Terraform Init
+        run: |
+          cd ./terraform
+          terraform init 
+
+      - name: Terraform Destroy
+        run: |
+          cd ./terraform
+          terraform destroy -auto-approve
