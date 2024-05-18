@@ -1,5 +1,5 @@
-# Stage 1: Build the Node.js application
-FROM node:14 AS build
+# Stage 1: Copy the application files
+FROM node:14 AS app
 
 # Set the working directory in the container
 WORKDIR /usr/src/app
@@ -13,24 +13,17 @@ RUN npm install
 # Copy the rest of the application code to the working directory
 COPY . .
 
-# Build the application
-RUN npm run build
-
-# Stage 2: Create the final image using a slim base image
-FROM amazonlinux:2
-
-# Set a non-root user
-RUN useradd -r -u 1001 appuser
-USER appuser
+# Stage 2: Create the final image using Alpine Linux
+FROM node:14-alpine
 
 # Set the working directory in the container
 WORKDIR /usr/src/app
 
 # Copy only the built artifacts from the previous stage
-COPY --from=build /usr/src/app/build /usr/src/app
+COPY --from=app /usr/src/app .
 
-# Install multilevel package globally (if required)
-# RUN npm install -g multilevel
+# Install multilevel package globally (if needed)
+RUN npm install -g multilevel
 
 # Expose port 3000
 EXPOSE 3000
