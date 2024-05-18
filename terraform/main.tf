@@ -82,8 +82,8 @@ resource "aws_ecs_task_definition" "my_task" {
     {
       name            = "my-nodejs-app"
       image           = "211125771099.dkr.ecr.ap-south-1.amazonaws.com/nodejs_app:latest"
-      memory          = 1024
-      cpu             = 512
+      memory          = 2048
+      cpu             = 1024
       essential       = true
       portMappings    = [
         {
@@ -106,8 +106,8 @@ resource "aws_ecs_task_definition" "my_task" {
 
   # Specify the execution strategy for the task definition
   # Requires an AWS managed scaling policy for Fargate launch type
-  cpu = "512"
-  memory = "1024"
+  cpu = "1024"
+  memory = "2048"
 }
 
 
