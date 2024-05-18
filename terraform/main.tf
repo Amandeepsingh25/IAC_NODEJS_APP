@@ -100,8 +100,6 @@ resource "aws_ecs_task_definition" "my_task" {
       ]
     }
   ])
-  # Specify task execution role ARN if required
-  execution_role_arn = aws_iam_role.my_task_execution_role.arn
   
   # Specify network mode as "awsvpc" for Fargate launch type
   network_mode = "awsvpc"
@@ -111,6 +109,7 @@ resource "aws_ecs_task_definition" "my_task" {
   cpu = "512"
   memory = "512"
 }
+
 
 resource "aws_vpc" "my_vpc" {
   cidr_block = "10.0.0.0/16"
