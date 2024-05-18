@@ -98,6 +98,14 @@ resource "aws_ecs_task_definition" "my_task" {
           value = "production"
         }
       ]
+      logConfiguration = {
+        logDriver = "awslogs"
+        options = {
+          "awslogs-group"   = "/ecs/my-cluster/my-service"
+          "awslogs-region"  = "ap-south-1"
+          "awslogs-stream-prefix" = "my-nodejs-app"
+        }
+      }
     }
   ])
   
@@ -111,6 +119,7 @@ resource "aws_ecs_task_definition" "my_task" {
   cpu = "1024"
   memory = "2048"
 }
+
 
 
 resource "aws_vpc" "my_vpc" {
@@ -189,14 +198,19 @@ resource "aws_security_group" "ecs_security_group" {
 
 # Define ECS service
 resource "aws_ecs_service" "my_service" {
-  name            = "my-service"  
-  cluster         = aws_ecs_cluster.my_cluster.id
-  task_definition = aws_ecs_task_definition.my_task.arn
-  desired_count   = 1  
-  launch_type     = "FARGATE"  
+  name                     = "my-service"  
+  cluster                  = aws_ecs_cluster.my_cluster.id
+  task_definition          = aws_ecs_task_definition.my_task.arn
+  desired_count            = 1  
+  launch_type              = "FARGATE"  
+  enable_ecs_managed_tags  = true
+  enable_execute_command   = true # Enable logging for the service
+
+  # Network configuration
   network_configuration {
-    subnets          = [aws_subnet.subnet1.id, aws_subnet.subnet2.id]  
-    security_groups  = [aws_security_group.ecs_security_group.id]  
-    assign_public_ip = true  
+    subnets             = [aws_subnet.subnet1.id, aws_subnet.subnet2.id]  
+    security_groups     = [aws_security_group.ecs_security_group.id]  
+    assign_public_ip    = true  
   }
 }
+
